@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
+    <script src="js/liquidFillGauge.js" language="JavaScript"></script>
+    <script src = "js/jquery-1.11.2.min.js"></script>
+    <style>
+        .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
+		#maincontent {
+			margin: 0 auto;
+			width: 960px;
+			height: 1000px;
+		}
+		
+		.reservoir {
+			width: 100%;
+			height: 450px;
+		}
+    </style>
+</head>
+<body>
+	<script>
+		$(document).ready(function(){
+			var renderReservoir = function(data) {
+				
+				for(var i = 0; i < data.length; i ++) {
+					$('#maincontent').append("<div class='reservoir'><h1>"+ data[i].reservoirName +"</h1><svg id='fillgauge" + i + "' width='97%' height='250'></svg><table><tr><td>有效容量(萬立方公尺):" + data[i].baseAvailable + "</td><td>每日統計時間:" + data[i].daliyTime +"</td><td>每日集水區降雨量(毫米):" + data[i].daliyRainfall + "</td></tr><tr><td>每日進水量(萬立方公尺):" + data[i].daliyInflow + "</td><td>每日出水量(萬立方公尺):" + data[i].daliyOverflow + "</td><td>與昨日水位差(公尺):" + data[i].daliyDetector + "</td></tr><tr><td>水體核種濃度值:" + data[i].concentration + "</td><td>即時水情時間:" + data[i].immediateTime + "</td><td>即時水位(公尺):" + data[i].immediateLevel + "</td></tr><tr><td>即時有效蓄水量(萬立方公尺)" + data[i].immediateStorage + "</td>><td>api 最後更新時間" + data[i].lastedUpdateTime + "</td><td></td></tr></table></div>");
+					
+					var config = liquidFillGaugeDefaultSettings();
+					
+					if(data[i].immediatePercentage.slice(0, -1) > 0 && data[i].immediatePercentage.slice(0, -1) < 26) {
+						config.circleColor = "#FF7777";
+						config.textColor = "#FF4444";
+						config.waveTextColor = "#FFAAAA";
+						config.waveColor = "#FFDDDD";
+						config.circleThickness = 0.2;
+						config.textVertPosition = 0.2;
+						config.waveAnimateTime = 1000;
+					} else if (data[i].immediatePercentage.slice(0, -1) > 25 && data[i].immediatePercentage.slice(0, -1) < 51){
+						config.circleThickness = 0.15;
+						config.circleColor = "#808015";
+						config.textColor = "#555500";
+						config.waveTextColor = "#FFFFAA";
+						config.waveColor = "#AAAA39";
+						config.textVertPosition = 0.8;
+						config.waveAnimateTime = 1000;
+						config.waveHeight = 0.05;
+						config.waveAnimate = true;
+						config.waveRise = false;
+						config.waveOffset = 0.25;
+						config.textSize = 0.75;
+						config.waveCount = 3;
+					
+					} else if (data[i].immediatePercentage.slice(0, -1) > 50 && data[i].immediatePercentage.slice(0, -1) < 76) {
+						config.circleThickness = 0.15;
+						config.textVertPosition = 0.8;
+						config.waveAnimateTime = 750;
+						config.waveHeight = 0.05;
+						config.waveAnimate = true;
+						config.waveRise = false;
+						config.waveOffset = 0.25;
+						config.textSize = 0.75;
+						config.waveCount = 3;
+					} else {
+						config.circleThickness = 0.4;
+						config.circleColor = "#6DA398";
+						config.textColor = "#0E5144";
+						config.waveTextColor = "#6DA398";
+						config.waveColor = "#246D5F";
+						config.textVertPosition = 0.52;
+						config.waveAnimateTime = 5000;
+						config.waveHeight = 0;
+						config.waveAnimate = true;
+						config.waveCount = 2;
+						config.waveOffset = 0.25;
+						config.textSize = 0.75;
+					}
+					loadLiquidFillGauge("fillgauge" + i, data[i].immediatePercentage.slice(0, -1), config);
+				}
+			};
+			
+			
+			$.ajax({
+			  url: "data.json",
+			  dataType: "json",
+			  success: function(json) {
+				renderReservoir(json);
+			  },
+			  failure: function(err) {
+				
+			  }
+			});
+		
+		});
+	</script>
+	
+	<div id="maincontent">
+		
+	</div>
+</body>
+</html>
